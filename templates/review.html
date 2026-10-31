@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block body %}
+<h2>Review log</h2>
+<p class="muted">Approved: {{ counts.get('Approved',0) }} &middot; Rejected: {{ counts.get('Rejected',0) }} &middot; Pending: {{ counts.get('Pending',0) }}</p>
+<div class="card" style="overflow-x:auto"><table>
+<tr><th>#</th><th>File</th><th>Role</th><th>Score</th><th>System said</th><th>Human decision</th><th>Note</th></tr>
+{% for r in rows %}<tr><td>{{ r.id }}</td><td>{{ r.filename }}</td><td>{{ r.job_role }}</td><td>{{ r.match_score }}</td><td>{{ r.recommendation }}</td>
+<td><b class="{{ 't-ok' if r.decision=='Approved' else ('t-bad' if r.decision=='Rejected' else '') }}">{{ r.decision }}</b>
+{% if r.decision == 'Pending' %}<form method="post" action="{{ url_for('decision', cid=r.id) }}" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+<input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<input type="text" name="note" maxlength="300" placeholder="Optional note" aria-label="Reviewer note">
+<button class="ok" name="decision" value="Approved">Approve</button>
+<button class="bad" name="decision" value="Rejected">Reject</button>
+</form>{% endif %}</td><td>{{ r.reviewer_note or '' }}</td></tr>
+{% else %}<tr><td colspan="7" class="muted">Nothing screened yet.</td></tr>{% endfor %}
+</table></div>{% endblock %}

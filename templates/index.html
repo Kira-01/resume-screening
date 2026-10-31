@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block body %}
+<div class="card"><h2 style="margin-top:0">Screen candidates</h2>
+<p class="muted">Upload text-based resume PDFs and paste the job description. Candidates are ranked by a transparent match score; a human reviewer makes every final decision.</p>
+<form method="post" action="{{ url_for('screen') }}" enctype="multipart/form-data">
+<input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<label for="job_role">Job role</label>
+<select id="job_role" name="job_role" required>{% for r in roles %}<option value="{{ r }}">{{ r.replace('_',' ') }}</option>{% endfor %}</select>
+<label for="jd">Job description</label>
+<textarea id="jd" name="jd" required placeholder="Paste the full job description, including required skills..."></textarea>
+<label for="resumes">Resumes (PDF, up to 20)</label>
+<input id="resumes" type="file" name="resumes" accept="application/pdf,.pdf" multiple required>
+<p><button type="submit">Screen resumes</button></p></form></div>
+<div class="notice">Do not use this tool as the sole selection criterion. Resume text is processed in memory and not stored. Only scores, extracted counts, file names and reviewer decisions are saved.</div>
+{% endblock %}

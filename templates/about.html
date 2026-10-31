@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block body %}
+<div class="card"><h2 style="margin-top:0">How scoring works</h2>
+<p>Match score = {{ (cfg.W_SKILLS*100)|int }}% skill coverage of the job description + {{ (cfg.W_TFIDF*100)|int }}% TF-IDF text similarity. Recommendation: score &ge; {{ cfg.SHORTLIST_AT|int }} shortlist, &lt; {{ cfg.REJECT_BELOW|int }} reject, otherwise borderline. These weights and thresholds are fixed design choices (editable at the top of <code>resume_parser.py</code>), not learned from data.</p>
+<h2>Known limits</h2>
+<ul>
+<li>The trained model reached CV ROC-AUC {{ meta.get('cv_roc_auc','n/a') }} on dataset.csv ({{ meta.get('n_rows','?') }} rows). Labels follow the dataset-generation rule documented in <code>generate_dataset.py</code>, so treat the model as a demonstration. It is shown for reference only and does not decide anything.</li>
+<li>NLP engine: {{ 'spaCy (en_core_web_sm) lemmatisation + TF-IDF' if cfg.SPACY_ACTIVE else 'regex tokenisation + TF-IDF (spaCy not installed)' }}.</li>
+<li>Skill matching uses a fixed vocabulary; skills outside it are invisible. Experience and education are heuristic estimates from text.</li>
+<li>Scanned (image-only) PDFs cannot be read.</li>
+<li>Bias on gender, age and name has not been audited because the dataset has no such fields. Names are never used in scoring.</li>
+<li>A human must review every decision. Do not use as the sole selection criterion.</li></ul></div>
+{% endblock %}

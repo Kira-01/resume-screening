@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+flask
+pdfminer.six
+# NLP (brief): spaCy lemmatisation for TF-IDF; app falls back to regex if spaCy is missing
+spacy
+# after install run: python -m spacy download en_core_web_sm
+# test sample generation only:
+# reportlab

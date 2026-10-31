@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% block body %}
+<h2>Results: {{ role.replace('_',' ') }} <span class="muted">({{ results|length }} screened)</span></h2>
+{% for e in errors %}<div class="flash">{{ e }}</div>{% endfor %}
+{% for r in results %}
+<div class="card">
+<div class="row"><div><b>#{{ loop.index }} {{ r.filename }}</b><br>
+<span class="tag {% if r.recommendation.startswith('Recommend shortlist') %}t-ok{% elif r.recommendation.startswith('Recommend reject') %}t-bad{% else %}t-warn{% endif %}">{{ r.recommendation }}</span></div>
+<div style="text-align:right"><div class="score">{{ r.match_score }}</div><div class="muted">match score / 100</div></div></div>
+<div class="bar" style="margin:10px 0"><i style="width:{{ r.match_score }}%"></i></div>
+<table>
+<tr><th style="width:170px">Skills matched</th><td>{{ r.matched_skills|join(', ') or 'none' }} <span class="muted">({{ r.skills_matched }} of {{ r.jd_skill_count }} in JD)</span></td></tr>
+<tr><th>Skills missing</th><td>{{ r.missing_skills|join(', ') or 'none' }}</td></tr>
+<tr><th>Experience (estimated)</th><td>{{ r.years_exp }} yrs{% if r.jd_required_years %} <span class="muted">(JD mentions {{ r.jd_required_years }} yrs)</span>{% endif %}</td></tr>
+<tr><th>Score breakdown</th><td class="muted">skill coverage {{ (r.skill_coverage*100)|round(0)|int }}% x {{ cfg.W_SKILLS }} + text similarity {{ (r.tfidf_similarity*100)|round(0)|int }}% x {{ cfg.W_TFIDF }}</td></tr>
+{% if r.ml_probability is not none %}<tr><th>Experimental ML</th><td class="muted">P(shortlisted) = {{ (r.ml_probability*100)|round(0)|int }}%. <b>Not used for the recommendation</b>: {{ 'the model found no reliable signal (CV AUC ' ~ meta.cv_roc_auc ~ ').' if not meta.predictive_signal_found else 'trained on the project dataset (CV AUC ' ~ meta.cv_roc_auc ~ '); demonstration only.' }}</td></tr>{% endif %}
+</table>
+<form method="post" action="{{ url_for('decision', cid=r.id) }}" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<input type="text" name="note" maxlength="300" placeholder="Reviewer note (optional)" style="flex:1;min-width:200px" aria-label="Reviewer note">
+<button class="ok" name="decision" value="Approved">Approve</button><button class="bad" name="decision" value="Rejected">Reject</button></form>
+</div>{% endfor %}
+<p><a href="{{ url_for('review_log') }}">Open review log</a></p>
+{% endblock %}
